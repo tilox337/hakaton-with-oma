@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#263f32" />
+    <title>ОМА LIFE — Твой дом. Твои решения.</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <a
+          class="brand"
+          href="#"
+          data-page="home"
+          aria-label="ОМА LIFE — главная"
+        >
+          <span class="brand-mark">⌂</span>
+          <span
+            ><strong>ОМА LIFE</strong
+            ><small>Твой дом. Твои решения.</small></span
+          >
+        </a>
+        <button
+          class="icon-btn"
+          data-page="saved"
+          aria-label="Сохранённые проекты"
+        >
+          ♡ <span id="saved-count">0</span>
+        </button>
+      </header>
+
+      <main id="app-content" aria-live="polite"></main>
+
+      <nav class="bottom-nav" aria-label="Главная навигация">
+        <button class="nav-item active" data-page="home">
+          <span>⌂</span>Главная
+        </button>
+        <button class="nav-item" data-page="projects">
+          <span>✦</span>Проекты
+        </button>
+        <button class="nav-item" data-page="myhome">
+          <span>▦</span>Мой дом
+        </button>
+        <button class="nav-item" data-page="cart"><span>🛍</span>Список</button>
+      </nav>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
