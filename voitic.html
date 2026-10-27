@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Войтик | Ночные Знакомства</title>
+    <style>
+      /* Сброс стилей и темная ночная тема */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background-color: #0b090a;
+        color: #f5f3f4;
+        display: flex;
+        flex-direction: column;
+        min-height: 90vh;
+        overflow-x: hidden;
+      }
+
+      /* Шапка с неоновым логотипом */
+      header {
+        background: linear-gradient(
+          180deg,
+          rgba(22, 11, 16, 0.9) 0%,
+          rgba(11, 9, 10, 0) 100%
+        );
+        text-align: center;
+        padding: 25px 20px;
+        font-size: 1.5em;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #e5383b;
+        text-shadow:
+          0 0 10px rgba(229, 56, 59, 0.6),
+          0 0 20px rgba(229, 56, 59, 0.4);
+        border-bottom: 1px solid rgba(229, 56, 59, 0.1);
+      }
+
+      /* Главная зона: Карточка для свайпов / Интерактив */
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+      }
+
+      /* Стилизация интерактивного элемента 💕 */
+      .heart-portal {
+        font-size: 8em;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s ease;
+        filter: drop-shadow(0 0 25px rgba(255, 75, 110, 0.6));
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .heart-portal:active {
+        transform: scale(0.85);
+      }
+
+      /* Информационный статус-блок */
+      .status-box {
+        background: rgba(22, 22, 26, 0.7);
+        border: 1px solid rgba(245, 243, 244, 0.1);
+        padding: 15px 30px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        text-align: center;
+        max-width: 320px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .status-box h2 {
+        font-size: 1.1em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #ba181b;
+        margin-bottom: 5px;
+      }
+
+      .status-box p {
+        font-size: 0.95em;
+        color: #a4161a;
+        font-weight: bold;
+      }
+
+      /* Нижнее меню (Панель действий) */
+      footer {
+        background: rgba(11, 9, 10, 0.95);
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+      }
+
+      /* Кнопки-табы в стиле современных приложений */
+      footer button {
+        flex: 1;
+        max-width: 120px;
+        background: #16161a;
+        color: #f5f3f4;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 14px 10px;
+        font-size: 0.85em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Акцент на важные кнопки при наведении и нажатии */
+      footer button:hover {
+        background: #a4161a;
+        border-color: #e5383b;
+        box-shadow: 0 0 15px rgba(229, 56, 59, 0.4);
+        transform: translateY(-2px);
+      }
+
+      footer button:active {
+        transform: translateY(1px);
+      }
+
+      /* Быстрая нотификация на экране */
+      .toast {
+        position: absolute;
+        top: 20px;
+        background: #e5383b;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9em;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(229, 56, 59, 0.4);
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Уведомление об активности -->
+    <div class="toast" id="notification">Поиск пары рядом...</div>
+
+    <header>Войтик | Hot Match</header>
+
+    <main>
+      <!-- Интерактивное сердце, реагирующее на клики -->
+      <div class="heart-portal" id="mainHeart" onclick="triggerMatch()">💕</div>
+
+      <div class="status-box">
+        <h2 id="statusTitle">Рядом с вами</h2>
+        <p id="statusText">🔥 14 человек готовы к встрече</p>
+      </div>
+    </main>
+
+    <footer>
+      <button onclick="actionClick('Режим: Секс активирован')">секс</button>
+      <button onclick="actionClick('Поиск анкет для Войтика...')">для</button>
+      <button onclick="actionClick('Профиль: Войтик')">войтика</button>
+    </footer>
+
+    <script>
+      // Простая логика для демонстрации интерактивности сайта
+      function actionClick(message) {
+        const toast = document.getElementById("notification");
+        toast.innerText = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2000);
+      }
+
+      function triggerMatch() {
+        const titles = [
+          "Новое совпадение!",
+          "Вас хотят!",
+          "Онлайн рядом",
+          "Адрес уточняется...",
+        ];
+        const texts = [
+          "💬 Напиши первой",
+          "💋 В 500 метрах от вас",
+          "🥂 Готов(а) ехать сейчас",
+          "🚪 Ждет ответа",
+        ];
+
+        const randomIdx = Math.floor(Math.random() * titles.length);
+
+        document.getElementById("statusTitle").innerText = titles[randomIdx];
+        document.getElementById("statusText").innerText = texts[randomIdx];
+
+        // Легкий визуальный толчок сердца при клике
+        const heart = document.getElementById("mainHeart");
+        heart.style.transform = "scale(1.2)";
+        setTimeout(() => (heart.style.transform = "none"), 150);
+      }
+    </script>
+  </body>
+</html>

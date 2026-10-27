@@ -51,7 +51,7 @@ button {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--green);
+  background: #0b4499;
   color: white;
   display: flex;
   align-items: center;
@@ -166,7 +166,7 @@ p {
   padding: 13px 16px;
   font-weight: 800;
   font-size: 13px;
-  background: var(--green);
+  background: #0b4499;
   color: white;
   display: inline-flex;
   align-items: center;
@@ -334,9 +334,9 @@ p {
   font-size: 12px;
 }
 .chip.active {
-  background: var(--green);
+  background: #e09112;
   color: white;
-  border-color: var(--green);
+  border-color: black;
 }
 .note {
   background: #f5f5f0;
@@ -511,7 +511,7 @@ p {
   line-height: 1.2;
 }
 .nav-item.active {
-  color: var(--green);
+  color: #0a4297;
 }
 .toast {
   position: fixed;
