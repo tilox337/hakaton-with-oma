@@ -86,6 +86,9 @@ const state = {
   saved: [],
   cart: [],
   completed: [],
+  isOrderModalOpen: false,
+  deliveryService: false,
+  loaderService: false,
 };
 
 function money(value) {
@@ -128,6 +131,18 @@ function selectTask(id) {
   state.chosen = "balanced";
   go("choose");
 }
+function updateModalPrice() {
+  const priceElement = document.getElementById("modal-total-price");
+  if (!priceElement) return;
+
+  const itemsTotal = total(state.cart);
+  const deliveryPrice = state.deliveryService ? 15 : 0;
+  const loaderPrice = state.loaderService ? 25 : 0;
+  const finalTotal = itemsTotal + deliveryPrice + loaderPrice;
+
+  priceElement.textContent = money(finalTotal);
+}
+
 function makeProject(name, subset, description, color) {
   const list = subset.filter((item) => item.price <= Number(state.budget));
   const usable = list.length ? list : subset.slice(0, 1);
@@ -285,12 +300,71 @@ function renderMyHome() {
 function renderCart() {
   if (!state.cart.length)
     return `<div class="eyebrow">ТВОИ ПОКУПКИ</div><h1>Список покупок</h1><div class="empty"><div class="big-icon">🛍️</div><h2>Список пока пуст</h2><p>Открой проект и нажми «+» рядом с товаром, чтобы добавить его сюда.</p><button class="btn" data-action="start">Подобрать товары →</button></div>`;
+
+  // Стоимость только товаров
+  const itemsTotal = total(state.cart);
+  // Стоимость доп. услуг (например: Доставка — 15 BYN, Грузчик — 25 BYN)
+  const deliveryPrice = state.deliveryService ? 15 : 0;
+  const loaderPrice = state.loaderService ? 25 : 0;
+  const finalTotal = itemsTotal + deliveryPrice + loaderPrice;
+
   return `<div class="eyebrow">ТВОИ ПОКУПКИ</div><h1>Список покупок</h1><p>Отмечай позиции по мере покупки или убирай ненужные.</p>
     ${state.cart.map((item, i) => `<div class="product-row"><span class="product-symbol">${item.icon}</span><span class="product-info"><strong>${item.name}</strong><small>${item.checked ? "Отмечено как купленное" : "В списке"}</small></span><span class="product-price">${money(item.price)}</span><button class="add-btn" data-action="toggle-cart" data-index="${i}">${item.checked ? "✓" : "○"}</button></div>`).join("")}
-    <hr><div class="row between"><strong>Итого по списку</strong><span class="price">${money(total(state.cart))}</span></div>
-    <button class="btn full" style="margin-top:18px" data-action="clear-cart">Очистить список</button>
+    <hr>
+    <div class="row between"><strong>Итого по товарам</strong><span class="price">${money(itemsTotal)}</span></div>
+    
+    <button class="btn full" style="margin-top:18px" data-action="open-order-modal">Оформить заказ →</button>
+    <button class="btn secondary full" style="margin-top:9px" data-action="clear-cart">Очистить список</button>
+    
+    ${
+      state.isOrderModalOpen
+        ? `
+    <div class="modal-overlay" data-action="close-order-modal">
+      <div class="modal-window" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Оформление заказа</h2>
+          <button class="modal-close-btn" data-action="close-order-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>Ваш заказ:</h3>
+          <div class="modal-goods-list">
+            ${state.cart.map((item) => `<div class="modal-goods-item"><span>${item.icon} ${item.name}</span><strong>${money(item.price)}</strong></div>`).join("")}
+          </div>
+          
+          <hr>
+          
+          <h3>Дополнительные услуги ОМА:</h3>
+          <div class="services-list">
+  <label class="service-checkbox-label" onclick="event.stopPropagation()">
+    <input type="checkbox" data-action="toggle-delivery" ${state.deliveryService ? "checked" : ""}>
+    <span>Доставка на дом (+15 BYN)</span>
+  </label>
+  <label class="service-checkbox-label" onclick="event.stopPropagation()">
+    <input type="checkbox" data-action="toggle-loader" ${state.loaderService ? "checked" : ""}>
+    <span>Услуги грузчика (+25 BYN)</span>
+  </label>
+</div>
+
+
+          
+          <hr>
+          
+          <div class="row between font-large">
+            <strong>Общая стоимость:</strong>
+           <span class="price-large" id="modal-total-price">${money(finalTotal)}</span>
+          </div>
+
+          
+          <button class="btn full" style="margin-top:20px" data-action="submit-order">Подтвердить заказ</button>
+        </div>
+      </div>
+    </div>
+    `
+        : ""
+    }
     <div class="note">Это демонстрационный список. Оформление и оплата заказа не подключены.</div>`;
 }
+
 function render() {
   const pages = {
     home: renderHome,
@@ -325,7 +399,18 @@ function saveCurrentProject() {
 content.addEventListener("change", (e) => {
   if (e.target.name === "task") state.task = e.target.value;
   if (e.target.name === "style") state.style = e.target.value;
+
+  // Изменяем логику здесь: убираем render() и добавляем updateModalPrice()
+  if (e.target.dataset.action === "toggle-delivery") {
+    state.deliveryService = e.target.checked;
+    updateModalPrice();
+  }
+  if (e.target.dataset.action === "toggle-loader") {
+    state.loaderService = e.target.checked;
+    updateModalPrice();
+  }
 });
+
 document.addEventListener("click", (e) => {
   const pageButton = e.target.closest("[data-page]");
   const actionButton = e.target.closest("[data-action]");
@@ -373,6 +458,33 @@ document.addEventListener("click", (e) => {
     if (item) item.checked = !item.checked;
     render();
   }
+  if (action === "open-order-modal") {
+    state.isOrderModalOpen = true;
+    render();
+  }
+  if (action === "close-order-modal") {
+    state.isOrderModalOpen = false;
+    render();
+  }
+  if (action === "toggle-delivery") {
+    state.deliveryService = e.target.checked;
+    updateModalPrice(); // Меняет только цифру, БЕЗ вызова render()
+  }
+  if (action === "toggle-loader") {
+    state.loaderService = e.target.checked;
+    updateModalPrice(); // Меняет только цифру, БЕЗ вызова render()
+  }
+
+  if (action === "submit-order") {
+    alert("Спасибо но тут ничего покачто нету, это тестовый образец");
+    state.isOrderModalOpen = false;
+    state.cart = []; // Очищаем корзину после успешного «заказа»
+    state.deliveryService = false;
+    state.loaderService = false;
+    render();
+    toastMessage("Заказ успешно оформлен! 🚀");
+  }
+
   if (action === "clear-cart") {
     state.cart = [];
     render();
