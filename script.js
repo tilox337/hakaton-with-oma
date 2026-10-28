@@ -77,6 +77,35 @@ const productSets = {
   ],
 };
 
+// Переменная для хранения товаров ленты, изначально пустая
+let catalogProducts = [];
+
+// Функция для асинхронной загрузки товаров из JSON
+async function loadCatalogProducts() {
+  try {
+    // Вместо 'products.json' укажите правильный путь к вашему JSON-файлу
+    const response = await fetch("products.json");
+
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки: ${response.status}`);
+    }
+
+    // Записываем данные в глобальный массив
+    catalogProducts = await response.json();
+
+    // Если пользователь сейчас находится на главной странице,
+    // перерисовываем интерфейс, чтобы товары появились на экране
+    if (state.page === "home") {
+      render();
+    }
+  } catch (error) {
+    console.error("Не удалось загрузить ленту товаров:", error);
+  }
+}
+
+// Запускаем загрузку сразу при старте скрипта
+loadCatalogProducts();
+
 const state = {
   page: "home",
   task: "room",
@@ -160,20 +189,46 @@ function makeProject(name, subset, description, color) {
   </article>`;
 }
 function renderHome() {
+  // Проверяем, есть ли данные в массиве catalogProducts.
+  // Если массив пуст или еще не загрузился, покажем аккуратную заглушку.
+  const productsGridHtml =
+    typeof catalogProducts !== "undefined" && catalogProducts.length
+      ? `<div class="grid" style="margin-top: 15px;">
+        ${catalogProducts
+          .map(
+            (p) => `
+          <article class="tile" style="min-height: auto; justify-content: space-between; gap: 12px; padding: 14px;">
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 6px;">
+              <div class="tile-icon" style="background: var(--bg); font-size: 16px; width: 32px; height: 32px; border-radius: 10px;">
+                ${p.img_adress ? `<img src="${p.img_adress}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:10px;">` : "📦"}
+              </div>
+              <strong style="font-size: 13px; color: var(--ink); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${p.name}
+              </strong>
+              <p style="font-size: 11px; line-height: 1.4; color: var(--muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                ${p.about}
+              </p>
+            </div>
+            <div class="row between" style="width: 100%; margin-top: 4px; align-items: center;">
+              <span class="product-price" style="font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap;">
+                ${p.price}
+              </span>
+              <button class="add-btn" style="cursor: pointer; width: 28px; height: 28px; font-size: 14px; display: grid; place-items: center; padding: 0;">+</button>
+            </div>
+          </article>
+        `,
+          )
+          .join("")}
+       </div>`
+      : `<div class="empty" style="padding: 20px;"><p>Лента товаров временно недоступна</p></div>`;
+
   return `<section class="hero">
     <div class="eyebrow">ПРОСТРАНСТВО ДЛЯ ТВОЕЙ ЖИЗНИ</div>
     <h1>Дом, в котором<br>хорошо.</h1>
     <p>Идеи, товары и простые решения для дома — с учётом твоих задач и бюджета.</p>
     <button class="btn" data-action="start">Создать свой проект <span>→</span></button>
   </section>
-  <div class="section-head"><h2>Что хочешь улучшить?</h2><span class="eyebrow">01 / 06</span></div>
-  <div class="grid">${tasks
-    .map(
-      (t) => `<button class="tile" data-action="task" data-id="${t.id}">
-    <span class="tile-icon">${t.icon}</span><strong>${t.title}</strong><small>${t.desc}</small>
-  </button>`,
-    )
-    .join("")}</div>
+  
   <div class="section-head"><h2>Идеи для вдохновения</h2><button class="text-btn" data-page="projects">Все проекты →</button></div>
   <button class="feature-card" style="width:100%;text-align:left;background:white" data-action="task" data-id="storage">
     <span class="feature-icon">🧺</span><span class="grow"><h3>Порядок без лишних вещей</h3><p>Продуманные решения для хранения в маленьком пространстве.</p></span><span>›</span>
@@ -181,8 +236,17 @@ function renderHome() {
   <button class="feature-card" style="width:100%;text-align:left;background:white" data-action="task" data-id="balcony">
     <span class="feature-icon">🪴</span><span class="grow"><h3>Балкон для отдыха</h3><p>Небольшой проект, который можно делать постепенно.</p></span><span>›</span>
   </button>
+  
+  <div class="section-head" style="margin-top: 28px; margin-bottom: 5px;">
+    <h2>Популярные товары</h2>
+  </div>
+  
+  <!-- Сетка с вашими товарами из JSON -->
+  ${productsGridHtml}
+
   <p class="footer-note">ОМА LIFE — концепт цифрового помощника по дому.</p>`;
 }
+
 function renderChoose() {
   return `<button class="back" data-page="home">← На главную</button>
     <div class="eyebrow">ТВОЙ ПРОЕКТ · ШАГ 1 ИЗ 2</div><h1>Давай подберём решение</h1>
