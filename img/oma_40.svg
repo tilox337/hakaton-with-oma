@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+    <rect width="640" height="480" rx="28" fill="#f2f5f8"/>
+    <rect x="22" y="22" width="596" height="436" rx="22" fill="white" stroke="#d7dde3" stroke-width="2"/>
+    <g transform="translate(0,0)" stroke="#344454" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><path d="M210 175 L410 175 L390 310 L230 310 Z" fill="#8bb7c7"/><path d="M195 155 L425 155 L410 185 L210 185 Z" fill="#b1d0db"/><path d="M235 210 L385 210" stroke="#6c9eaf"/></g><text x="320" y="395" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#344454">Ящик универсальный для хранения с крышкой</text><text x="320" y="425" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#77838d">Иллюстрация товара · не фото продавца</text></svg>
